@@ -8,4 +8,5 @@ int main(void) {
     }
 
     rbt_print(arvre);
+    rbt_destroy(arvre);
 }

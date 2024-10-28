@@ -7,6 +7,7 @@ static void left_rotate(rbt* rbt, rbt_node* x);
 static void right_rotate(rbt* rbt, rbt_node* x);
 static void insert_fixup(rbt* rbt, rbt_node* z);
 static void inorder_walk(rbt* rbt, rbt_node* x);
+static void destroy_nodes(rbt* rbt, rbt_node* x);
 
 rbt* rbt_construct(){
     rbt* new_rbt = malloc(sizeof(rbt));
@@ -24,6 +25,22 @@ rbt* rbt_construct(){
     new_rbt->root = new_rbt->nil;
 
     return new_rbt;
+}
+
+void rbt_destroy(rbt* rbt) {
+    destroy_nodes(rbt, rbt->root);
+
+    free(rbt->nil);
+    free(rbt); rbt = NULL;
+}
+
+static void destroy_nodes(rbt* rbt, rbt_node* x) {
+    if (x != rbt->nil) {
+        destroy_nodes(rbt, x->left_child);
+        destroy_nodes(rbt, x->right_child);
+        free(x);
+    } else
+        return;
 }
 
 rbt_node* rbt_search(const rbt* rbt, int search_key) {
