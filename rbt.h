@@ -25,7 +25,7 @@ struct rbt_ {
 rbt* rbt_construct();
 void rbt_destroy(rbt* rbt);
 rbt_node* rbt_search(const rbt* rbt, int search_key);
-rbt_node* rbt_minimun(const rbt* rbt);
+int rbt_minimun(const rbt* rbt);
 rbt_node* rbt_maximum(const rbt* rbt);
 int rbt_insert(rbt* rbt, int key);
 void rbt_print(rbt* rbt);

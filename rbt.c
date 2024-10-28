@@ -10,6 +10,7 @@ static void inorder_walk(rbt* rbt, rbt_node* x);
 static void destroy_nodes(rbt* rbt, rbt_node* x);
 static void transplant(rbt* rbt, rbt_node* u, rbt_node* v);
 static void delete_fixup(rbt* rbt, rbt_node* x);
+static rbt_node* minimun(const rbt* rbt, rbt_node* iterate);
 
 rbt* rbt_construct(){
     rbt* new_rbt = malloc(sizeof(rbt));
@@ -60,15 +61,12 @@ rbt_node* rbt_search(const rbt* rbt, int search_key) {
     return current_node == rbt->nil ? NULL : current_node;
 }
 
-rbt_node* rbt_minimun(const rbt* rbt) {
-    if (!rbt) {printf("\n\nERROR::TREE DOES NOT EXIST\n\n"); return NULL;}
+int rbt_minimun(const rbt* rbt) {
+    if (!rbt) {printf("\n\nERROR::TREE DOES NOT EXIST\n\n"); return 0;}
 
-    rbt_node* current_node = rbt->root;
+    rbt_node* rtn = minimun(rbt, rbt->root);
 
-    while (current_node->left_child != rbt->nil)
-        current_node = current_node->left_child;
-
-    return current_node;
+    return rtn == rbt->nil ? 0 : rtn->key;
 }
 
 rbt_node* rbt_maximum(const rbt* rbt) {
@@ -79,7 +77,7 @@ rbt_node* rbt_maximum(const rbt* rbt) {
     while (current_node->right_child != rbt->nil)
         current_node = current_node->right_child;
 
-    return current_node;
+    return current_node == rbt->nil ? NULL : current_node;
 }
 
 static void left_rotate(rbt* rbt, rbt_node* x) {
@@ -213,6 +211,15 @@ static void transplant(rbt* rbt, rbt_node* u, rbt_node* v) {
     v->parent = u->parent;
 }
 
+static rbt_node* minimun(const rbt* rbt, rbt_node* iterate) {
+    rbt_node* current_node = iterate;
+
+    while (current_node->right_child != rbt->nil)
+        current_node = current_node->right_child;
+
+    return current_node;
+}
+
 void rbt_delete(rbt* rbt, int key) {
     if (!rbt) {printf("\n\nERROR::TREE DOES NOT EXIST\n\n"); return;}
 
@@ -231,7 +238,8 @@ void rbt_delete(rbt* rbt, int key) {
         x = z->left_child;
         transplant(rbt, z, z->left_child);
     } else {
-        y = rbt_minimun(rbt);
+        y = minimun(rbt, z->right_child);
+        y_og_color = y->color;
         x = y->right_child;
 
         if (y->parent == z) {
@@ -282,7 +290,6 @@ static void delete_fixup(rbt* rbt, rbt_node* x) {
                 w->right_child->color = BLACK;
                 left_rotate(rbt, x->parent);
                 x = rbt->root;
-                x->color = BLACK;
             }
         } else {
             rbt_node* w = x->parent->left_child;
@@ -310,10 +317,10 @@ static void delete_fixup(rbt* rbt, rbt_node* x) {
                 w->left_child->color = BLACK;
                 right_rotate(rbt, x->parent);
                 x = rbt->root;
-                x->color = BLACK;
             }
         }
     }
+    x->color = BLACK;
 }
 
 void rbt_print(rbt* rbt){

@@ -11,14 +11,18 @@ int main(void) {
     rbt_node* a = rbt_search(arvre, 31);
 
     printf("a: %p\n", a);
-    rbt_delete(arvre, 21);
+    printf("root 0 :%d\n", arvre->root->key);
+    rbt_delete(arvre, 13);
+    printf("root 1 : %d\n", arvre->root->key);
     rbt_print(arvre);
-    rbt_delete(arvre, 20);
+    rbt_delete(arvre, 14);
+    printf("root 2 : %d\n", arvre->root->key);
     rbt_print(arvre);
-    rbt_delete(arvre, 19);
+    rbt_delete(arvre, 16);
+    printf("root 3 : %d\n", arvre->root->key);
     rbt_print(arvre);
-    rbt_delete(arvre, 18);
-
+    rbt_delete(arvre, 0);
+    printf("root 4 : %d\n", arvre->root->key);
     rbt_print(arvre);
     rbt_destroy(arvre);
 }
