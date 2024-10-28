@@ -8,6 +8,7 @@ int main(void) {
         rbt_insert(arvre, i);
     }
 
+    rbt_insert(arvre, 2);
     rbt_node* a = rbt_search(arvre, 31);
 
     printf("a: %p\n", a);
