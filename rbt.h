@@ -29,3 +29,4 @@ rbt_node* rbt_minimun(const rbt* rbt);
 rbt_node* rbt_maximum(const rbt* rbt);
 int rbt_insert(rbt* rbt, int key);
 void rbt_print(rbt* rbt);
+void rbt_delete(rbt* rbt, int key);

@@ -8,6 +8,8 @@ static void right_rotate(rbt* rbt, rbt_node* x);
 static void insert_fixup(rbt* rbt, rbt_node* z);
 static void inorder_walk(rbt* rbt, rbt_node* x);
 static void destroy_nodes(rbt* rbt, rbt_node* x);
+static void transplant(rbt* rbt, rbt_node* u, rbt_node* v);
+static void delete_fixup(rbt* rbt, rbt_node* x);
 
 rbt* rbt_construct(){
     rbt* new_rbt = malloc(sizeof(rbt));
@@ -28,6 +30,8 @@ rbt* rbt_construct(){
 }
 
 void rbt_destroy(rbt* rbt) {
+    if (!rbt) {printf("\n\nERROR::TREE DOES NOT EXIST\n\n"); return;}
+
     destroy_nodes(rbt, rbt->root);
 
     free(rbt->nil);
@@ -64,7 +68,7 @@ rbt_node* rbt_minimun(const rbt* rbt) {
     while (current_node->left_child != rbt->nil)
         current_node = current_node->left_child;
 
-    return current_node == rbt->nil ? NULL : current_node;
+    return current_node;
 }
 
 rbt_node* rbt_maximum(const rbt* rbt) {
@@ -75,7 +79,7 @@ rbt_node* rbt_maximum(const rbt* rbt) {
     while (current_node->right_child != rbt->nil)
         current_node = current_node->right_child;
 
-    return current_node == rbt->nil ? NULL : current_node;
+    return current_node;
 }
 
 static void left_rotate(rbt* rbt, rbt_node* x) {
@@ -197,6 +201,119 @@ static void insert_fixup(rbt* rbt, rbt_node* z) {
     }
 
     rbt->root->color = BLACK;
+}
+
+static void transplant(rbt* rbt, rbt_node* u, rbt_node* v) {
+    if (u->parent == rbt->nil)
+        rbt->root = v;
+    else if (u == u->parent->left_child)
+        u->parent->left_child = v;
+    else u->parent->right_child = v;
+
+    v->parent = u->parent;
+}
+
+void rbt_delete(rbt* rbt, int key) {
+    if (!rbt) {printf("\n\nERROR::TREE DOES NOT EXIST\n\n"); return;}
+
+    rbt_node* z = rbt_search(rbt, key);
+
+    if (!z) return;
+
+    rbt_node* x = rbt->nil;
+    rbt_node* y = z;
+    bool y_og_color = y->color;
+
+    if (z->left_child == rbt->nil) {
+        x = z->right_child;
+        transplant(rbt, z, z->right_child);
+    } else if (z->right_child == rbt->nil) {
+        x = z->left_child;
+        transplant(rbt, z, z->left_child);
+    } else {
+        y = rbt_minimun(rbt);
+        x = y->right_child;
+
+        if (y->parent == z) {
+            x->parent = y;
+        } else {
+            transplant(rbt, y, y->right_child);
+            y->right_child = z->right_child;
+            y->right_child->parent = y;
+        }
+
+        transplant(rbt, z, y);
+        y->left_child = z->left_child;
+        y->left_child->parent = y;
+        y->color = z->color;
+    }
+
+    if (y_og_color == BLACK)
+        delete_fixup(rbt, x);
+
+    free(z);
+}
+
+static void delete_fixup(rbt* rbt, rbt_node* x) {
+    while (x != rbt->root && x->color == BLACK) {
+        if (x == x->parent->left_child) {
+            rbt_node* w = x->parent->right_child;
+
+            if (w->color == RED) {
+                w->color = BLACK;
+                x->parent->color = RED;
+                left_rotate(rbt, x->parent);
+                w = x->parent->right_child;
+            }
+
+            if (w->right_child->color == BLACK && w->left_child->color == BLACK) {
+                w->color = RED;
+                x = x->parent;
+            } else {
+                if (w->right_child->color == BLACK) {
+                    w->left_child->color = BLACK;
+                    w->color = RED;
+                    right_rotate(rbt, w);
+                    w = x->parent->right_child;
+                }
+
+                w->color = x->parent->color;
+                x->parent->color = BLACK;
+                w->right_child->color = BLACK;
+                left_rotate(rbt, x->parent);
+                x = rbt->root;
+                x->color = BLACK;
+            }
+        } else {
+            rbt_node* w = x->parent->left_child;
+
+            if (w->color == RED) {
+                w->color = BLACK;
+                x->parent->color = RED;
+                right_rotate(rbt, x->parent);
+                w = x->parent->left_child;
+            }
+
+            if (w->right_child->color == BLACK && w->left_child->color == BLACK) {
+                w->color = RED;
+                x = x->parent;
+            } else {
+                if (w->left_child->color == BLACK) {
+                    w->right_child->color = BLACK;
+                    w->color = RED;
+                    left_rotate(rbt, w);
+                    w = x->parent->left_child;
+                }
+
+                w->color = x->parent->color;
+                x->parent->color = BLACK;
+                w->left_child->color = BLACK;
+                right_rotate(rbt, x->parent);
+                x = rbt->root;
+                x->color = BLACK;
+            }
+        }
+    }
 }
 
 void rbt_print(rbt* rbt){
