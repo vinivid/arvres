@@ -214,8 +214,8 @@ static void transplant(rbt* rbt, rbt_node* u, rbt_node* v) {
 static rbt_node* minimun(const rbt* rbt, rbt_node* iterate) {
     rbt_node* current_node = iterate;
 
-    while (current_node->right_child != rbt->nil)
-        current_node = current_node->right_child;
+    while (current_node->left_child != rbt->nil)
+        current_node = current_node->left_child;
 
     return current_node;
 }
