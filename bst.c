@@ -69,7 +69,36 @@ int bst_maximum (bst* bst) {
 }
 
 int bst_insert (bst* bst, int key) {
-    if (!bst) {printf("\n\nERROR::TREE DOES NOT EXIST\n\n"); return;}
+    if (!bst) {printf("\n\nERROR::TREE DOES NOT EXIST\n\n"); return 1;}
 
-    
+    bst_node* new_node = malloc(sizeof(bst_node));
+
+    if (!new_node) {printf("\n\nERROR::BAD ALLOC\n\n"); return 1;}
+
+    new_node->key = key;
+    new_node->left_child = NULL;
+    new_node->right_child = NULL;
+
+    bst_node* search_node = bst->root;
+    bst_node* trailing_node = NULL;
+
+    while (search_node != NULL) {
+        trailing_node = search_node;
+
+        if (new_node->key < search_node->key)
+            search_node = search_node->left_child;
+        else
+            search_node = search_node->right_child;
+    }
+
+    new_node->parent = trailing_node;
+
+    if (trailing_node == NULL) 
+        bst->root = new_node;
+    else if (new_node->key < trailing_node->key) 
+        trailing_node->left_child = new_node;
+    else 
+        trailing_node->right_child = new_node;
+
+    return 0;
 }
